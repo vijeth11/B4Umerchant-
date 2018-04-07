@@ -1,17 +1,18 @@
 package com.example.stpl.b4umertest;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
+
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 
 import com.android.volley.Request;
@@ -36,11 +38,7 @@ public class Main2Activity extends AppCompatActivity {
 
     private ListView lv;
     private String[] name;
-    private Button update;
     private Boolean[] selecteditems;
-
-    // URL to get contacts JSON
-    private static String url = "https://vijeth11.000webhostapp.com/merchant.php?type=merchant";
 
     ArrayList<HashMap<String, String>> itemList;
     private JSONArray items;
@@ -51,9 +49,9 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         itemList = new ArrayList<>();
 
-        lv = (ListView) findViewById(R.id.list);
+        lv = findViewById(R.id.list);
         new GetContacts().execute();
-        update=(Button)findViewById(R.id.update);
+        Button update = findViewById(R.id.update);
 
         update.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,6 +77,7 @@ public class Main2Activity extends AppCompatActivity {
     /**
      * Async task class to get json by making HTTP call
      */
+    @SuppressLint("StaticFieldLeak")
     private class GetContacts extends AsyncTask<Void, Void, Void> {
 
         @Override
@@ -93,6 +92,7 @@ public class Main2Activity extends AppCompatActivity {
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
+            String url = "https://vijeth11.000webhostapp.com/merchant.php?type=merchant";
             String jsonStr = sh.makeServiceCall(url);
 
             Log.e(TAG, "Response from url: " + jsonStr);
@@ -151,14 +151,12 @@ public class Main2Activity extends AppCompatActivity {
             return null;
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Dismiss the progress dialog
 
-            /**
-             * Updating parsed JSON data into ListView
-             * */
             name=new String[items.length()+1];
             selecteditems=new Boolean[items.length()+1];
             Log.e(TAG,"onPostExecute is running");
@@ -169,7 +167,7 @@ public class Main2Activity extends AppCompatActivity {
                 {
                     String key = mapEntry.getKey();
                     String value=mapEntry.getValue();
-                    if(key=="name") {
+                    if(Objects.equals(key, "name")) {
                         name[count] = value;
                         selecteditems[count] = false;
                     }
@@ -190,6 +188,7 @@ public class Main2Activity extends AppCompatActivity {
         //creating a string request to send request to the url
         StringRequest stringRequest = new StringRequest(Request.Method.GET, JSON_URL,
                 new Response.Listener<String>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(String response) {
                         //hiding the progressbar after completion
@@ -204,7 +203,7 @@ public class Main2Activity extends AppCompatActivity {
                             //so here we are getting that json array
                            String error =obj.getString("error");
                            String message=obj.getString("message");
-                           if(error=="TRUE")
+                           if(Objects.equals(error, "TRUE"))
                            Toast.makeText(Main2Activity.this,message,Toast.LENGTH_SHORT).show();
 
                             //now looping through all the elements of the json array

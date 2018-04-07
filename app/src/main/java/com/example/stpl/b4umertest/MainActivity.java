@@ -21,5 +21,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button insert = (Button) findViewById(R.id.insert);
+        insert.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v)
+            {
+                startActivity(new Intent(MainActivity.this,AddNewItem.class));
+            }
+        });
+
     }
 }
